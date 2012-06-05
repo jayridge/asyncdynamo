@@ -213,7 +213,7 @@ class AsyncDynamoDB(AWSAuthConnection):
             else:
                 # because some errors are benign, include the response when an error is passed
                 return callback(json_response, error=DynamoDBResponseError(response.error.code, 
-                    response.error.message, response.body))
+                    response.error.message, json_response))
         return callback(json_response, error=None)
     
     def get_item(self, table_name, key, callback, attributes_to_get=None,
@@ -250,7 +250,7 @@ class AsyncDynamoDB(AWSAuthConnection):
         return self.make_request('GetItem', body=json.dumps(data),
             callback=callback, object_hook=object_hook)
     
-    def batch_get_item(self, request_items, callback):
+    def batch_get_item(self, request_items, callback, object_hook=None):
         """
         Return a set of attributes for a multiple items in
         multiple tables using their primary keys.
@@ -264,7 +264,7 @@ class AsyncDynamoDB(AWSAuthConnection):
         """
         data = {'RequestItems' : request_items}
         json_input = json.dumps(data)
-        self.make_request('BatchGetItem', json_input, callback)
+        self.make_request('BatchGetItem', json_input, callback, object_hook=object_hook)
         
     def put_item(self, table_name, item, callback, expected=None, return_values=None, object_hook=None):
         '''
